@@ -162,7 +162,7 @@ def HighLevelCBS(grid,agent_dict): #{agent number1:[start1,goal1],agent number2:
         P = heapq.heappop(pq) #pop node from the priority queue and make it as parent 
         C = GiveConflict(P.solution) 
         if(C==None): 
-            return P.solution,P.cost
+            return True,P.solution,P.cost
     
 
         for i in range(2):
@@ -180,7 +180,7 @@ def HighLevelCBS(grid,agent_dict): #{agent number1:[start1,goal1],agent number2:
             if(A.solution != None):
                 heapq.heappush(pq,A)
 
-    return None 
+    return False,None,None 
 
 
 #Implementation:
