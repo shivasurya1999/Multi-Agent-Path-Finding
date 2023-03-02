@@ -74,8 +74,6 @@ def draw_path(grid, paths, title="Path"):
     plt.show()
 
 
-
-
 if __name__ == "__main__":
     # Load the map
     grid, start1, start2, goal1, goal2 = load_map('test_map.csv')
@@ -86,12 +84,14 @@ if __name__ == "__main__":
     print(cbs_solution)
     print("total cost:")
     print(cbs_cost)
-    # Show the progress of each path at every timestep
-    for t in range(max(len(paths) for paths in cbs_solution.values())):
-        draw_path(grid, {agent: paths[:t+1] for agent, paths in cbs_solution.items()})
-        time.sleep(1) # Add a delay to slow down the animation
 
-    # Show the final solution
-    draw_path(grid, cbs_solution)
+    if(cbs_solution[1] != []):
+        # Show the progress of each path at every timestep
+        for t in range(max(len(paths) for paths in cbs_solution.values())):
+            draw_path(grid, {agent: paths[:t+1] for agent, paths in cbs_solution.items()})
+            time.sleep(1) # Add a delay to slow down the animation
+
+        # Show the final solution
+        draw_path(grid, cbs_solution)
 
 

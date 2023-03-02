@@ -1,4 +1,3 @@
-# Basic searching algorithms
 import queue 
 import heapq
 
@@ -186,7 +185,7 @@ def LowLevelCBS(grid, start, goal,constraints,agent):
     heapq.heappush(pq, start_node) #insert the start node into the queue
     grid[start_node.row][start_node.col] = 2 #mark visited node 
 
-    while pq:
+    while (pq and idx<100000): #run it for a given number of iterations and return no path if path does not exist 
 
         current_node = heapq.heappop(pq) #pop out the highest priority node from the priority queue
         steps = steps + 1 #increment the number of steps
