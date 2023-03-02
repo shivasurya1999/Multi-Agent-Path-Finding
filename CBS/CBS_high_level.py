@@ -48,7 +48,7 @@ class Node:
         return self.cost<other.cost 
 
 
-def GiveConflict(solution): #checks for vertex conflicts and returns the first conflict it finds in the form (ai,aj,v,t)
+def GiveVertexConflict(solution): #checks for vertex conflicts and returns the first conflict it finds in the form (ai,aj,v,t)
     i = 0 
     max_len = max(len(lst) for lst in solution.values())
     while i < max_len:
@@ -76,6 +76,75 @@ def GiveConflict(solution): #checks for vertex conflicts and returns the first c
     return None #if no conflict has been found return None 
 
 
+def GiveEdgeConflict(solution):
+    """
+    Given a solution dictionary containing paths for multiple robots, this function finds the first edge conflict
+    between two robots in the solution.
+
+    Args:
+    - solution (dict): A dictionary containing paths for multiple robots, where each key represents a robot and
+                       the corresponding value is a list of (x, y) coordinates representing the path of the robot.
+
+    Returns:
+    - A tuple representing the first edge conflict found in the solution, consisting of:
+      * The keys of the two robots involved in the conflict (as integers).
+      * The (x, y) coordinates of the edge where the conflict occurred.
+      * The time step (as an integer) when the conflict occurred.
+
+    If no edge conflicts are found in the solution, the function returns None.
+
+    """
+
+    # Iterate through all pairs of robot paths in the solution
+    for key in solution.keys():
+        if(key+1>len(solution)): break
+        for i in range(len(solution[key])-1):
+            for j in range(len(solution)-key):
+                # Check if the two paths share a common edge at the current time step
+                if(len(solution[key+j+1])>i+1):
+                    if((solution[key][i]==solution[key+j+1][i+1]) and
+                    (solution[key+j+1][i]==solution[key][i+1])):
+                        # If a conflict is found, return the conflict details
+                        return (key,key+j+1,solution[key][i],solution[key][i+1],i)
+    
+    # If no conflicts are found, return None
+    return None
+ 
+
+def GiveConflict(solution):
+    """
+    Given a solution to a Multi-Agent Path Finding (MAPF) problem, this function returns the first conflict found in the solution,
+    whether it is a vertex conflict or an edge conflict. Vertex conflicts occur when two or more agents occupy the same vertex
+    at the same time, while edge conflicts occur when two or more agents cross the same edge at the same time.
+    
+    Args:
+    - solution: a dictionary that represents the solution to the MAPF problem. The dictionary has agents' ids as keys and lists
+                of (x,y,t) tuples as values, where (x,y) is the position of the agent at time t.
+    
+    Returns:
+    - a tuple that represents the first conflict found in the solution. If the conflict is a vertex conflict, the tuple has the
+      form (ai,aj,v,t), where ai and aj are the ids of the agents that conflict at vertex v at time t. If the conflict is an edge
+      conflict, the tuple has the form (ai,aj,v1,v2,t), where ai and aj are the ids of the agents that conflict at the edge
+      between vertices v1 and v2 at time t.
+    """
+    vertex_conflict = GiveVertexConflict(solution) #(ai,aj,v,t)
+    edge_conflict = GiveEdgeConflict(solution) #(ai,aj,v1,v2,t)
+    
+    # Determine which conflict occurs first based on the time of the conflict
+    if vertex_conflict is not None and edge_conflict is not None:
+        if vertex_conflict[3] <= edge_conflict[4]:
+            return vertex_conflict
+        else:
+            return edge_conflict
+    elif vertex_conflict is not None:
+        return vertex_conflict
+    elif edge_conflict is not None:
+        return edge_conflict
+    else:
+        return None
+
+
+
 def HighLevelCBS(grid,agent_dict): #{agent number1:[start1,goal1],agent number2:[start2,goal2]}. Returns solution with a path per agent, otherwise returns None 
     path = {}
     constraints = [] #vertex constraint: (ai,v,t) => constraints = [(ai,v,t),...]
@@ -99,7 +168,11 @@ def HighLevelCBS(grid,agent_dict): #{agent number1:[start1,goal1],agent number2:
         for i in range(2):
             A_constraints = P.constraints.copy()
             A_solution = P.solution.copy() #child node sol = parent node sol (will be updated)
-            A_constraints = A_constraints + [(C[i], C[2], C[3])] #child node constraints = parent node constraints + constraints as per conflict
+            if(len(C)==5): #incase of edge conflict 
+                print(A_constraints)
+                A_constraints = A_constraints + [(C[i],C[i+2],C[4])] #imposing constraints (ai,v1,t),(aj,v2,t)
+            else:
+                A_constraints = A_constraints + [(C[i], C[2], C[3])] #child node constraints = parent node constraints + constraints as per conflict
             A = Node(A_constraints,A_solution) #initiate child node 
             idx = idx + 1 
             A.index = idx #assign index for priority queue purpose 
