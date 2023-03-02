@@ -79,7 +79,7 @@ if __name__ == "__main__":
     grid, start1, start2, goal1, goal2 = load_map('test_map.csv')
     agent_dict = {1:[start1,goal1],2:[start2,goal2]}
     # Search
-    cbs_solution,cbs_cost = HighLevelCBS(grid,agent_dict)
+    _,cbs_solution,cbs_cost = HighLevelCBS(grid,agent_dict)
     print("solution:")
     print(cbs_solution)
     print("total cost:")
