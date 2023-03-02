@@ -57,14 +57,17 @@ def GiveConflict(solution): #checks for vertex conflicts and returns the first c
             if(len(solution[agent]) > i):
                 positions.append(solution[agent][i]) #append position for all agents at index i 
             else:
-                positions.append([10000*random.random(),10000*random.random()]) #append a large number so that the kdtree ignores this 
+                positions.append(solution[agent][-1]) #the agent that has reached its goal stays there indefinitely 
+                # positions.append([10000*random.random(),10000*random.random()]) #append a large number so that the kdtree ignores this 
+
+        #if we manage to find neighbours with r=0, it means that there is collision between agents at that time step (index i)
         r = 0
         kdtree = spatial.KDTree(positions)
         pairs = list(kdtree.query_pairs(r))
 
         if(len(pairs) > 0):
             conflict_agents = list(pairs[0])
-            conflict_agents = [1+conflict_agents[0],1+conflict_agents[1]]
+            conflict_agents = [1+conflict_agents[0],1+conflict_agents[1]] #to get correct number of the agent 
             v = solution[agent][i] #position where the conflict arises 
             t = i  #time step of conflict 
             return (conflict_agents[0],conflict_agents[1],v,t) #return the conflict in the form (ai,aj,v,t)
@@ -90,7 +93,7 @@ def HighLevelCBS(grid,agent_dict): #{agent number1:[start1,goal1],agent number2:
         P = heapq.heappop(pq) #pop node from the priority queue and make it as parent 
         C = GiveConflict(P.solution) 
         if(C==None): 
-            return P.solution
+            return P.solution,P.cost
     
 
         for i in range(2):

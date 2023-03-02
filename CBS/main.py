@@ -78,11 +78,14 @@ def draw_path(grid, paths, title="Path"):
 
 if __name__ == "__main__":
     # Load the map
-    grid, start1, start2, goal1, goal2 = load_map('map.csv')
+    grid, start1, start2, goal1, goal2 = load_map('test_map.csv')
     agent_dict = {1:[start1,goal1],2:[start2,goal2]}
     # Search
-    cbs_solution = HighLevelCBS(grid,agent_dict)
+    cbs_solution,cbs_cost = HighLevelCBS(grid,agent_dict)
+    print("solution:")
     print(cbs_solution)
+    print("total cost:")
+    print(cbs_cost)
     # Show the progress of each path at every timestep
     for t in range(max(len(paths) for paths in cbs_solution.values())):
         draw_path(grid, {agent: paths[:t+1] for agent, paths in cbs_solution.items()})
