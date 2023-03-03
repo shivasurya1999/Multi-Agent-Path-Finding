@@ -76,7 +76,7 @@ class Grid:
         gridMap = np.zeros((len(self.grid),len(self.grid[0])),dtype=np.uint8)
         for row in range(len(self.grid)):
             for col in range(len(self.grid[0])):
-                if self.grid[row][col].getType() == Cell or self.grid[row][col].getType() == Obstacle:
+                if self.grid[row][col].getType() == EMPTY_CELL or self.grid[row][col].getType() == OBSTACLE:
                     gridMap[row][col] = np.uint8(self.grid[row][col].getType())
 
         return gridMap
