@@ -176,6 +176,12 @@ def HighLevelCBS(grid_pygame): #{agent number1:[start1,goal1],agent number2:[sta
     for agent in agent_dict:
         path[agent] = LowLevelCBS(grid,agent_dict[agent][0],agent_dict[agent][1],constraints,agent)
 
+    pathFound = False
+    for pathKey in path:
+        if len(path[pathKey]):
+            pathFound = True
+    if(not pathFound): return False,None,None 
+
     idx = 0 
     Root = Node(constraints,path)   
     Root.index = 0 

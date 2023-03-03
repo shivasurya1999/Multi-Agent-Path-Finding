@@ -120,6 +120,7 @@ class PGGrid():
             self.calculatePath()
             print("Finished Calculating Path")
         if key == pygame.K_s:
+            print(self.foundPath)
             if self.foundPath:
                 self.state = ANIMATE_PATH
                 print("Animating Path")
