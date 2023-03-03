@@ -128,6 +128,9 @@ class PGGrid():
                 print("Finished animating Path")
             else:
                 print("No Path Found, Cannot Animate")
+        if key == pygame.K_x:
+            self.state = IDLE
+            self.gridDisplay.updateGrid(self.grid)
             
     def calculatePath(self):
         self.foundPath, self.pathDict, self.pathCost = HighLevelCBS(self.grid)
