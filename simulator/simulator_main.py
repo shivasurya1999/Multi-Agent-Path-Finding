@@ -3,7 +3,7 @@ import pygame
 from grid import *
 from pggrid import *
 
-grid = Grid(10,10)
+grid = Grid(5,5)
 
 # Set the HEIGHT and WIDTH of the screen
 pgGrid = PGGrid(grid)
