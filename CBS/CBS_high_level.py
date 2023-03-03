@@ -145,7 +145,32 @@ def GiveConflict(solution):
 
 
 
-def HighLevelCBS(grid,agent_dict): #{agent number1:[start1,goal1],agent number2:[start2,goal2]}. Returns solution with a path per agent, otherwise returns None 
+def HighLevelCBS(grid_pygame): #{agent number1:[start1,goal1],agent number2:[start2,goal2]}. Returns solution with a path per agent, otherwise returns None 
+    grid = grid_pygame.getMap().tolist()
+    start_list = grid_pygame.getAgentMap().tolist()
+    goal_list = grid_pygame.getAgentGoalMap().tolist()
+
+    agent_dict = {}
+    i = 0
+    for row_s in start_list:
+        j = 0
+        for elem_s in row_s:
+            if(elem_s>0):
+                agent_dict[elem_s] = [[i,j]]
+            j += 1
+        i += 1
+
+    k = 0
+    for row_g in goal_list:
+        l = 0
+        for elem_g in row_g:
+            if(elem_g>0):
+                agent_dict[elem_g].append([k,l])
+            l += 1
+        k += 1
+
+    agent_dict = {k: agent_dict[k] for k in sorted(agent_dict, key=lambda x: x)}
+
     path = {}
     constraints = [] #vertex constraint: (ai,v,t) => constraints = [(ai,v,t),...]
     for agent in agent_dict:
