@@ -146,12 +146,14 @@ class PGGrid():
         agentGoalMap = self.grid.getAgentGoalMap()
 
         agentStartXs, agentStartYs = np.where(agentCellMap != 0)
-        for x in agentStartXs:
-            for y in agentStartYs:
-                agentCell = self.grid.getCell((x,y))
-                agentGoalx, agentGoaly = np.where(agentGoalMap == agentCell.getAgentID())
-                agentGoal = self.grid.getCell((agentGoalx[0], agentGoaly[0]))
-                agentCellsDict[agentCell.getAgentID()] = (agentCell, agentGoal, (agentGoalx[0], agentGoaly[0]))
+        print(agentCellMap)
+        print(agentStartXs)
+        print(agentStartYs)
+        for i in range(len(agentStartXs)):
+            agentCell = self.grid.getCell((agentStartXs[i],agentStartYs[i]))
+            agentGoalx, agentGoaly = np.where(agentGoalMap == agentCell.getAgentID())
+            agentGoal = self.grid.getCell((agentGoalx[0], agentGoaly[0]))
+            agentCellsDict[agentCell.getAgentID()] = (agentCell, agentGoal, (agentGoalx[0], agentGoaly[0]))
         
         
         for i in range(longestPathSize):
