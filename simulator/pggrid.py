@@ -1,6 +1,13 @@
 import pygame
 from grid import *
 from grid_display import *
+# import sys
+# import os
+# includePath = os.getcwd() + "/../CBS"
+# print(includePath)
+# sys.path.insert(1, includePath)
+from CBS_high_level import *
+
 
 IDLE = 0
 ADD_OBSTACLE = 1
@@ -22,6 +29,7 @@ class PGGrid():
         self._onClick = None
         self._onKeyPress = None
         self.currentAgentID = None
+        self.calcThread = None
 
         self.clock = pygame.time.Clock()
     
@@ -108,6 +116,64 @@ class PGGrid():
                 self.state = REMOVE_AGENT
         if key == pygame.K_c:
             self.state = CALCULATE_PATH
+            print("Calculating Path")
+            self.calculatePath()
+            print("Finished Calculating Path")
+        if key == pygame.K_s:
+            if self.foundPath:
+                self.state = ANIMATE_PATH
+                print("Animating Path")
+                self.animatePath()
+                print("Finished animating Path")
+            else:
+                print("No Path Found, Cannot Animate")
+            
+    def calculatePath(self):
+        self.foundPath, self.pathDict, self.pathCost = HighLevelCBS(self.grid)
+
+    def animatePath(self):
+        longestPathSize = 0
+        print(self.pathDict)
+        for pathItem in self.pathDict:
+            print(pathItem)
+            if longestPathSize < len(self.pathDict[pathItem]):
+                longestPathSize = len(self.pathDict[pathItem])
+        
+        agentCellsDict = {}
+        gridObstacleMap = self.grid.getMap()
+        agentCellMap = self.grid.getAgentMap()
+        agentGoalMap = self.grid.getAgentGoalMap()
+
+        agentStartXs, agentStartYs = np.where(agentCellMap != 0)
+        for x in agentStartXs:
+            for y in agentStartYs:
+                agentCell = self.grid.getCell((x,y))
+                agentGoalx, agentGoaly = np.where(agentGoalMap == agentCell.getAgentID())
+                agentGoal = self.grid.getCell((agentGoalx[0], agentGoaly[0]))
+                agentCellsDict[agentCell.getAgentID()] = (agentCell, agentGoal, (agentGoalx[0], agentGoaly[0]))
+        
+        
+        for i in range(longestPathSize):
+            gridToVisualize = Grid(len(gridObstacleMap), len(gridObstacleMap[0]), gridObstacleMap)
+            for pathItem in self.pathDict:
+                agentID = pathItem
+                path = self.pathDict[pathItem]
+                agentCellInfos = agentCellsDict.get(agentID)
+                agentCell = agentCellInfos[0]
+                agentGoal = agentCellInfos[1]
+                agentGoalCoord = agentCellInfos[2]
+
+                if i > len(path) - 1:
+                    gridToVisualize.setCell(agentGoalCoord, agentGoal)
+                    gridToVisualize.setCell(path[-1], agentCell)
+                else:
+                    gridToVisualize.setCell(path[i], agentCell)
+                    gridToVisualize.setCell(agentGoalCoord, agentGoal)
+
+            self.gridDisplay.updateGrid(gridToVisualize)
+            self.clock.tick(1)
+            self.gridDisplay.renderGridDisplay()
+            pygame.display.update()
         
     
     def tick(self, maxframes:int)->bool:

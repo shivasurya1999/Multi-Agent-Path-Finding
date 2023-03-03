@@ -45,8 +45,15 @@ class AgentGoal(Cell):
         return self.agentID
 
 class Grid:
-    def __init__(self, rowSize, colSize):
-        self.grid = [[Cell() for j in range(colSize)] for i in range(rowSize)]
+    def __init__(self, rowSize, colSize, obstacleMap = None):
+        if obstacleMap is not None:
+            self.grid = [[Cell() for j in range(colSize)] for i in range(rowSize)]
+            for i in range(len(obstacleMap)):
+                for j in range(len(obstacleMap[0])):
+                    if obstacleMap[i][j] == OBSTACLE:
+                        self.setCell((i,j), Obstacle())
+        else:
+            self.grid = [[Cell() for j in range(colSize)] for i in range(rowSize)]
 
     def getCell(self, pos):
         row,col = pos
