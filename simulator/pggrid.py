@@ -23,7 +23,7 @@ class PGGrid():
     def __init__(self, grid):
         self.grid = grid
         pygame.init()
-        WINDOW_SIZE = [1000, 1000]
+        WINDOW_SIZE = [700, 700]
         self.gridDisplay = GridDisplay(self.grid,WINDOW_SIZE)
         self.state = IDLE
         self._onClick = None

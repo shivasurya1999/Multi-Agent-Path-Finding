@@ -30,7 +30,7 @@ def GetPathToGoal(node): #takes a node and returns a path from that node to the 
     return path  #return the final path from start to the goal 
 
 
-def GetHeuristic(node,goal): #returns the euclidean distance to goal as heuristic 
+def GetHeuristic(node,goal): #returns the manhattan distance to goal as heuristic 
     n_row = node[0]
     n_col = node[1]
     g_row = goal[0]
@@ -46,13 +46,13 @@ def GetNeighbours(current_node,grid,idx,agent_constraints,agent): #takes a node 
     cols = len(grid[0])
     ind = idx 
 
-
     #at the current_time we check if the (v,t) for any neighbour that we are about to expand is in agent_constraints
     #we flag such neighbour to False so that we do not expand it 
     right_flag = True 
     down_flag = True 
     left_flag = True 
     up_flag = True 
+    wait_flag = True 
     for agent_constraint in agent_constraints:
         if(agent_constraint[2]==current_time):
             if([current_node.row,current_node.col+1]==agent_constraint[1]):
@@ -63,7 +63,10 @@ def GetNeighbours(current_node,grid,idx,agent_constraints,agent): #takes a node 
                 left_flag = False 
             if([current_node.row-1,current_node.col]==agent_constraint[1]):
                 up_flag = False 
+            if([current_node.row,current_node.col]==agent_constraint[1]): 
+                wait_flag = False 
     
+
     if(0<=current_node.col+1<=cols-1): #if right neighbour exists in grid bounds 
         if((grid[current_node.row][current_node.col+1]==0)and(right_flag==True)): #if right neighbour is not an abstacle, has not been visited or flagged false 
             #create the right neighbour 
@@ -120,17 +123,18 @@ def GetNeighbours(current_node,grid,idx,agent_constraints,agent): #takes a node 
             up_neighbour.time = current_time
             neighbours.append(up_neighbour) #add it to the neighbours list
             grid[up_row][up_col] = 2  #mark the node as visited
-    
+
     # #waiting at the current node
-    ind = ind + 1
-    wait_row = current_node.row 
-    wait_col = current_node.col 
-    wait_node = Node(current_node.row,current_node.col,False)
-    wait_node.parent = current_node
-    wait_node.g = current_node.g + 1
-    wait_node.index = ind 
-    wait_node.time = current_time
-    neighbours.append(wait_node)
+    if(wait_flag==True): #we wait only if waiting is not prohibited 
+        ind = ind + 1
+        wait_row = current_node.row 
+        wait_col = current_node.col 
+        wait_node = Node(current_node.row,current_node.col,False)
+        wait_node.parent = current_node
+        wait_node.g = current_node.g + 1
+        wait_node.index = ind 
+        wait_node.time = current_time
+        neighbours.append(wait_node)
 
     return neighbours,ind #return the list of neighbours 
 
@@ -219,6 +223,7 @@ def LowLevelCBS(grid, start, goal,constraints,agent):
 
     if found:
         print(f"path found")
+        print(agent,path)
     else:
         print("No path found")
     return path

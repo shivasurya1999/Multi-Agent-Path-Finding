@@ -129,6 +129,7 @@ def GiveConflict(solution):
     """
     vertex_conflict = GiveVertexConflict(solution) #(ai,aj,v,t)
     edge_conflict = GiveEdgeConflict(solution) #(ai,aj,v1,v2,t)
+    #print(vertex_conflict,edge_conflict)
     
     # Determine which conflict occurs first based on the time of the conflict
     if vertex_conflict is not None and edge_conflict is not None:
@@ -200,7 +201,7 @@ def HighLevelCBS(grid_pygame): #{agent number1:[start1,goal1],agent number2:[sta
             A_constraints = P.constraints.copy()
             A_solution = P.solution.copy() #child node sol = parent node sol (will be updated)
             if(len(C)==5): #incase of edge conflict 
-                print(A_constraints)
+                #print(A_constraints)
                 A_constraints = A_constraints + [(C[i],C[i+2],C[4])] #imposing constraints (ai,v1,t),(aj,v2,t)
             else:
                 A_constraints = A_constraints + [(C[i], C[2], C[3])] #child node constraints = parent node constraints + constraints as per conflict

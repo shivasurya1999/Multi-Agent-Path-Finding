@@ -3,13 +3,13 @@ import pygame
 from grid import *
 from pggrid import *
 
-grid = Grid(10,10)
+grid = Grid(12,12)
 
 # Set the HEIGHT and WIDTH of the screen
 pgGrid = PGGrid(grid)
  
 # Set title of screen
-pygame.display.set_caption("MAFP Simulator")
+pygame.display.set_caption("MAPF Simulator")
  
 # Loop until the user clicks the close button.
 running = True
