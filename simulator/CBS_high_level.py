@@ -69,13 +69,10 @@ def GiveVertexConflict(solution): #checks for vertex conflicts and returns the f
             conflict_agents = list(pairs[0])
             conflict_agents = [1+conflict_agents[0],1+conflict_agents[1]] #to get correct number of the agent 
             try:
-                v = solution[conflict_agents[0]][i]
-            except IndexError:
-                v = solution[conflict_agents[0]][-1]
-                print(f"Index {i} is out of bounds for solution[{conflict_agents[0]}].")
-                print(f"Index error occurred for solution[{conflict_agents[0]}][{i}].")
-                print(solution[conflict_agents[0]])
-            # v = solution[conflict_agents[0]][i] #position where the conflict arises 
+                v = solution[conflict_agents[0]][i] #position where the conflict arises 
+            except IndexError: #for agents with non-longest path 
+                v = solution[conflict_agents[0]][-1] #position where the conflict arises 
+
             t = i  #time step of conflict 
             return (conflict_agents[0],conflict_agents[1],v,t) #return the conflict in the form (ai,aj,v,t)
 
