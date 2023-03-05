@@ -223,7 +223,7 @@ def LowLevelCBS(grid, start, goal,constraints,agent):
 
     if found:
         print(f"path found")
-        print(agent,path)
+        # print(agent,path)
     else:
         print("No path found")
     return path

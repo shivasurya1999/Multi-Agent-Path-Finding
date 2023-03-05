@@ -68,7 +68,14 @@ def GiveVertexConflict(solution): #checks for vertex conflicts and returns the f
         if(len(pairs) > 0):
             conflict_agents = list(pairs[0])
             conflict_agents = [1+conflict_agents[0],1+conflict_agents[1]] #to get correct number of the agent 
-            v = solution[agent][i] #position where the conflict arises 
+            try:
+                v = solution[conflict_agents[0]][i]
+            except IndexError:
+                v = solution[conflict_agents[0]][-1]
+                print(f"Index {i} is out of bounds for solution[{conflict_agents[0]}].")
+                print(f"Index error occurred for solution[{conflict_agents[0]}][{i}].")
+                print(solution[conflict_agents[0]])
+            # v = solution[conflict_agents[0]][i] #position where the conflict arises 
             t = i  #time step of conflict 
             return (conflict_agents[0],conflict_agents[1],v,t) #return the conflict in the form (ai,aj,v,t)
 
@@ -95,6 +102,7 @@ def GiveEdgeConflict(solution):
 
     """
 
+    #print(solution)
     # Iterate through all pairs of robot paths in the solution
     for key in solution.keys():
         if(key+1>len(solution)): break
@@ -201,10 +209,12 @@ def HighLevelCBS(grid_pygame): #{agent number1:[start1,goal1],agent number2:[sta
             A_constraints = P.constraints.copy()
             A_solution = P.solution.copy() #child node sol = parent node sol (will be updated)
             if(len(C)==5): #incase of edge conflict 
-                #print(A_constraints)
                 A_constraints = A_constraints + [(C[i],C[i+2],C[4])] #imposing constraints (ai,v1,t),(aj,v2,t)
+                #print(A_constraints)
             else:
                 A_constraints = A_constraints + [(C[i], C[2], C[3])] #child node constraints = parent node constraints + constraints as per conflict
+                #print(A_solution)
+
             A = Node(A_constraints,A_solution) #initiate child node 
             idx = idx + 1 
             A.index = idx #assign index for priority queue purpose 
