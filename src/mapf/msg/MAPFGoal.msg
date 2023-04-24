@@ -1,0 +1,2 @@
+Map GridMap
+AgentStartAndGoal[] Agents

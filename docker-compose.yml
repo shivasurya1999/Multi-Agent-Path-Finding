@@ -1,0 +1,91 @@
+networks:
+  ros:
+    driver: bridge
+
+services:
+  ros-master:
+    image: cuda12-ros
+    # command: ["bash", "-c", "source /root/.bashrc && roscore"] 
+    command: roscore
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    networks:
+      - ros
+    # network_mode: "host"
+    restart: always
+    stdin_open: true
+    tty: true
+
+  # talker:
+  #   image: cuda12-ros
+  #   depends_on:
+  #     - ros-master
+  #   environment:
+  #     - "ROS_MASTER_URI=http://ros-master:11311"
+  #   command: rostopic pub /chatter std_msgs/String "hello" -r 1
+  #   deploy:
+  #     resources:
+  #       reservations:
+  #         devices:
+  #           - driver: nvidia
+  #             count: 1
+  #             capabilities: [gpu]
+  #   networks:
+  #     - ros
+  #   restart: always
+
+  # listener:
+  #   image: cuda12-ros
+  #   depends_on:
+  #     - ros-master
+  #   environment:
+  #     - "ROS_MASTER_URI=http://ros-master:11311"
+  #   command: rostopic echo /chatter
+  #   deploy:
+  #     resources:
+  #       reservations:
+  #         devices:
+  #           - driver: nvidia
+  #             count: 1
+  #             capabilities: [gpu]
+  #   networks:
+  #     - ros
+  #   restart: always
+  
+  viz:
+    image: cuda12-ros
+    container_name: ros_visualizer
+    depends_on:
+      - ros-master
+    networks:
+      - ros
+    environment:
+      - "ROS_MASTER_URI=http://ros-master:11311"
+      - "NVIDIA_DRIVER_CAPABILITIES=all"
+      - "DISPLAY"
+      - "QT_X11_NO_MITSHM=1" #fix some QT bugs
+    #share your user to the container in order to access your x11
+    # user: 1000:1000 #adapt as needed!
+    volumes: 
+      #share your x11 socket and permissions to the container
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+      - /etc/group:/etc/group:ro
+      - /etc/passwd:/etc/passwd:ro
+      - /etc/shadow:/etc/shadow:ro
+      - /etc/sudoers:/etc/sudoers:ro
+      - /etc/sudoers.d:/etc/sudoers.d:ro
+      # - /home/oliver/docker_share:/home/oliver/docker_share:rw #share your home with write permissions
+      - /home/oliver/MotionPlanning/FinalProject://home/project:rw
+    command: gazebo
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]

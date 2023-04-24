@@ -1,0 +1,49 @@
+FROM nvidia/cuda:12.1.0-devel-ubuntu20.04
+
+# Minimal setup
+RUN apt-get update \
+ && apt-get install -y locales lsb-release
+ARG DEBIAN_FRONTEND=noninteractive
+RUN dpkg-reconfigure locales
+ 
+# Install ROS Noetic
+RUN sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list'
+RUN apt-key adv --keyserver 'hkp://keyserver.ubuntu.com:80' --recv-key C1CF6E31E6BADE8868B172B4F42ED6FBAB17C654
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends ros-noetic-desktop-full
+RUN apt-get install -y --no-install-recommends python3-rosdep
+RUN rosdep init \
+ && rosdep fix-permissions \
+ && rosdep update
+RUN apt-get update &&\
+    apt-get install -y \
+        net-tools \
+        iputils-ping \
+        dnsutils \
+    &&\
+    rm -rf /var/lib/apt/lists/*
+
+RUN echo "source /opt/ros/noetic/setup.bash" >> ~/.bashrc
+COPY ros_entrypoint.sh /usr/local/bin/ros_entrypoint.sh
+
+RUN  chmod 755 /usr/local/bin/ros_entrypoint.sh
+
+ENTRYPOINT ["/usr/local/bin/ros_entrypoint.sh"]
+
+#Install Pygame(has to be pygame 2.0 above, apt-get installs pygame 1.9)
+RUN apt-get update && apt-get install -y python3-pip
+RUN pip3 install --no-cache-dir --upgrade pip \
+  && pip3 install --no-cache-dir pip install pygame
+
+#install scipy
+RUN apt-get update && apt-get install -y python3-scipy
+
+CMD ["bash"]
+
+
+
+WORKDIR /home/MAPF
+
+
+# ENV PATH=/usr/local/cuda-11.1/bin${PATH:+:${PATH}}
+# ENV LD_LIBRARY_PATH=/usr/local/cuda-11.1/lib64${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}

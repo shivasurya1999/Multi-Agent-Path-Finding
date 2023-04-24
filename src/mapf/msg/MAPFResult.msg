@@ -1,0 +1,2 @@
+bool PlanSuccessful
+AgentPath[] AgentPaths

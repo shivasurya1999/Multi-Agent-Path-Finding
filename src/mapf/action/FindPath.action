@@ -1,0 +1,8 @@
+# Define the goal
+MAPFGoal mapf_goal
+---
+# Define the result
+MAPFResult mapf_result
+---
+# Define a feedback message
+float32 percent_complete #not sure what to use as feedback, decide later
