@@ -38,6 +38,7 @@ class PGGrid():
         print("Initializing ros")
         rospy.init_node('MAPF_pygame_client')
         self.CBS_client = MAPFClient("CBS")
+        self.client = self.CBS_client
 
         self.clock = pygame.time.Clock()
     
@@ -110,6 +111,18 @@ class PGGrid():
 
     def onKeyPress(self,key)->None :
         print(key)
+        if key == pygame.K_1:
+            print("Current Algorithm is CBS")
+            self.client.cancel_all_goals()
+            self.client = self.CBS_client
+        if key == pygame.K_2:
+            print("Current Algorithm is Symmetry Breaking")
+            self.client.cancel_all_goals()
+            self.client = self.SYMMETRY_client
+        if key == pygame.K_3:
+            print("Current Algorithm is Mutex Prop")
+            self.client.cancel_all_goals()
+            self.client = self.Mutex_client
         if key == pygame.K_ESCAPE:
             self.clearGrid()
             self.state = IDLE
@@ -128,9 +141,9 @@ class PGGrid():
             self.calculatePath()
             print("Finished Calculating Path")
         if key == pygame.K_s:
-            self.foundPath = self.CBS_client.planSuccessful
+            self.foundPath = self.client.planSuccessful
             if self.foundPath:
-                self.pathDict = self.CBS_client.pathDict
+                self.pathDict = self.client.pathDict
                 self.state = ANIMATE_PATH
                 print("Animating Path")
                 self.animatePath()
@@ -142,7 +155,7 @@ class PGGrid():
             self.gridDisplay.updateGrid(self.grid)
             
     def calculatePath(self):
-        self.CBS_client.setGoal(self.grid.getMap(), self.grid.getAgentsInfo())
+        self.client.setGoal(self.grid.getMap(), self.grid.getAgentsInfo())
         # self.foundPath, self.pathDict, self.pathCost = HighLevelCBS(self.grid)
 
     def animatePath(self):

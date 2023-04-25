@@ -17,7 +17,6 @@ class MAPFServer(object):
         rospy.loginfo(self._action_name + " Server Initialized!")
 
     def execute_cb(self, goal):
-        # print(np.frombuffer(goal.mapf_goal.GridMap.MapData,dtype=np.uint8))
         grid = np.frombuffer(goal.mapf_goal.GridMap.MapData,dtype=np.uint8).reshape(goal.mapf_goal.GridMap.MapHeight, goal.mapf_goal.GridMap.MapWidth).tolist()
         agent_dict = {}
         for agentInfo in goal.mapf_goal.Agents:

@@ -25,6 +25,9 @@ class MAPFClient(object):
         self._client.wait_for_server()
         rospy.loginfo(self._action_name + " Client Initialized!")
 
+    def cancel_all_goals(self):
+        self._client.cancel_all_goals()
+        
     def setGoal(self, map, AgentsInfo):
         goal = FindPathGoal()
         goal.mapf_goal.GridMap.MapWidth = map.shape[1]
