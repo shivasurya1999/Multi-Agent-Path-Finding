@@ -1,2 +1,2 @@
 uint32 AgentID
-CellPosition[] AgentPath
+CellPosition[] Path

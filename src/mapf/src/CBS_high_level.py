@@ -154,31 +154,31 @@ def GiveConflict(solution):
 
 
 
-def HighLevelCBS(grid_pygame): #{agent number1:[start1,goal1],agent number2:[start2,goal2]}. Returns solution with a path per agent, otherwise returns None 
-    grid = grid_pygame.getMap().tolist()
-    start_list = grid_pygame.getAgentMap().tolist()
-    goal_list = grid_pygame.getAgentGoalMap().tolist()
+def HighLevelCBS(grid, agent_dict): #{agent number1:[start1,goal1],agent number2:[start2,goal2]}. Returns solution with a path per agent, otherwise returns None 
+    # grid = grid_pygame.getMap().tolist()
+    # start_list = grid_pygame.getAgentMap().tolist()
+    # goal_list = grid_pygame.getAgentGoalMap().tolist()
 
-    agent_dict = {}
-    i = 0
-    for row_s in start_list:
-        j = 0
-        for elem_s in row_s:
-            if(elem_s>0):
-                agent_dict[elem_s] = [[i,j]]
-            j += 1
-        i += 1
+    # agent_dict = {}
+    # i = 0
+    # for row_s in start_list:
+    #     j = 0
+    #     for elem_s in row_s:
+    #         if(elem_s>0):
+    #             agent_dict[elem_s] = [[i,j]]
+    #         j += 1
+    #     i += 1
 
-    k = 0
-    for row_g in goal_list:
-        l = 0
-        for elem_g in row_g:
-            if(elem_g>0):
-                agent_dict[elem_g].append([k,l])
-            l += 1
-        k += 1
+    # k = 0
+    # for row_g in goal_list:
+    #     l = 0
+    #     for elem_g in row_g:
+    #         if(elem_g>0):
+    #             agent_dict[elem_g].append([k,l])
+    #         l += 1
+    #     k += 1
 
-    agent_dict = {k: agent_dict[k] for k in sorted(agent_dict, key=lambda x: x)}
+    # agent_dict = {k: agent_dict[k] for k in sorted(agent_dict, key=lambda x: x)}
 
     path = {}
     constraints = [] #vertex constraint: (ai,v,t) => constraints = [(ai,v,t),...]
@@ -230,5 +230,5 @@ def HighLevelCBS(grid_pygame): #{agent number1:[start1,goal1],agent number2:[sta
 #solution = HighLevelCBS(agent_dict) #Returns solution with a path per agent, otherwise returns None
 if __name__ == '__main__':
     rospy.init_node('CBS_Server')
-    server = MAPFServer("CBS")
+    server = MAPFServer("CBS", HighLevelCBS)
     rospy.spin()

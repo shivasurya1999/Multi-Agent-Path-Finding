@@ -20,6 +20,9 @@ REMOVE_GOAL = 6
 CALCULATE_PATH = 7
 ANIMATE_PATH = 8
 
+CBS = 1
+SYMMETRY_BREAKING = 2
+MUTEX_PROP=3
 class PGGrid():
     def __init__(self, grid):
         self.grid = grid
@@ -27,6 +30,7 @@ class PGGrid():
         WINDOW_SIZE = [700, 700]
         self.gridDisplay = GridDisplay(self.grid,WINDOW_SIZE)
         self.state = IDLE
+        self.algorithm = CBS
         self._onClick = None
         self._onKeyPress = None
         self.currentAgentID = None
@@ -124,20 +128,22 @@ class PGGrid():
             self.calculatePath()
             print("Finished Calculating Path")
         if key == pygame.K_s:
-            print(self.foundPath)
+            self.foundPath = self.CBS_client.planSuccessful
             if self.foundPath:
+                self.pathDict = self.CBS_client.pathDict
                 self.state = ANIMATE_PATH
                 print("Animating Path")
                 self.animatePath()
                 print("Finished animating Path")
             else:
-                print("No Path Found, Cannot Animate")
+                print("No Path Found or Path Not Available Yet, Cannot Animate")
         if key == pygame.K_x:
             self.state = IDLE
             self.gridDisplay.updateGrid(self.grid)
             
     def calculatePath(self):
-        self.foundPath, self.pathDict, self.pathCost = HighLevelCBS(self.grid)
+        self.CBS_client.setGoal(self.grid.getMap(), self.grid.getAgentsInfo())
+        # self.foundPath, self.pathDict, self.pathCost = HighLevelCBS(self.grid)
 
     def animatePath(self):
         longestPathSize = 0
