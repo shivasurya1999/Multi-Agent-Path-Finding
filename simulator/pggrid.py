@@ -7,6 +7,7 @@ from grid_display import *
 # print(includePath)
 # sys.path.insert(1, includePath)
 from CBS_high_level import *
+from Mutex import *
 
 
 IDLE = 0
@@ -133,7 +134,8 @@ class PGGrid():
             self.gridDisplay.updateGrid(self.grid)
             
     def calculatePath(self):
-        self.foundPath, self.pathDict, self.pathCost = HighLevelCBS(self.grid)
+        #self.foundPath, self.pathDict, self.pathCost = HighLevelCBS(self.grid)
+        self.foundPath, self.pathDict, self.pathCost = Mutex(self.grid)
 
     def animatePath(self):
         longestPathSize = 0
