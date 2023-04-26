@@ -72,7 +72,7 @@ def GetMDD(grid, start, goal):
             # print("node and level")
             # print(node,level) 
 
-    print(G.nodes(data=True))
+    # print(G.nodes(data=True))
     # Add edges between nodes at adjacent levels
     for i in range(len(graph_levels) - 1):
         curr_level_nodes = graph_levels[i] 
