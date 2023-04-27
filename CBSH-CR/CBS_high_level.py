@@ -4,6 +4,7 @@ import random
 import queue 
 import heapq 
 from CBS_low_level import LowLevelCBS
+from sym_break import *
 
 """
 We have 2 agents (n agents in general), each with a start position, and a goal position 
@@ -149,7 +150,17 @@ def GiveConflict(solution):
     else:
         return None
 
-
+def SymmetryBreaking(vertex_conflict: tuple, path1: list, path2: list)->list:
+    """
+    vertex_conflict -> (ai,aj,v,t)
+    """
+    agent1 = Agent(vertex_conflict[0],path1)
+    agent2 = Agent(vertex_conflict[1],path2)
+    constraints = []
+    if isRectangle(agent1,agent2):
+        Rs,Rg,Ri,Rj = getVertices(agent1,agent2)
+        constraints = getBarrierConstraint(agent1.agentID,Ri,Rg)
+    return constraints
 
 def HighLevelCBS(grid_pygame): #{agent number1:[start1,goal1],agent number2:[start2,goal2]}. Returns solution with a path per agent, otherwise returns None 
     grid = grid_pygame.getMap().tolist()
@@ -182,9 +193,6 @@ def HighLevelCBS(grid_pygame): #{agent number1:[start1,goal1],agent number2:[sta
     for agent in agent_dict:
         path[agent] = LowLevelCBS(grid,agent_dict[agent][0],agent_dict[agent][1],constraints,agent)
 
-    print(grid)
-    print(agent_dict)
-
     pathFound = False
     for pathKey in path:
         if len(path[pathKey]):
@@ -201,22 +209,35 @@ def HighLevelCBS(grid_pygame): #{agent number1:[start1,goal1],agent number2:[sta
     while pq:
         P = heapq.heappop(pq) #pop node from the priority queue and make it as parent 
         C = GiveConflict(P.solution) 
-        if(C==None):
+        if(C==None): 
             print("No. of Nodes expanded: ",idx)
             return True,P.solution,P.cost
-
+        
         if idx > 100000:
             print("No. of Nodes expanded: ",idx)
             break
-
-        for i in range(2): 
+        # call symmetry breaking for adding barrier constraints
+        is_rect = False
+        agent1 = Agent(C[0],P.solution[C[0]])
+        agent2 = Agent(C[1],P.solution[C[1]]) 
+        if isRectangle(agent1,agent2):
+            Rs,Rg,Ri,Rj = getVertices(agent1,agent2)
+            is_rect = True
+        
+        for i in range(2):
             A_constraints = P.constraints.copy()
             A_solution = P.solution.copy() #child node sol = parent node sol (will be updated)
             if(len(C)==5): #incase of edge conflict 
                 A_constraints = A_constraints + [(C[i],C[i+2],C[4])] #imposing constraints (ai,v1,t),(aj,v2,t)
                 #print(A_constraints)
             else:
-                A_constraints = A_constraints + [(C[i], C[2], C[3])] #child node constraints = parent node constraints + constraints as per conflict
+                if is_rect:    
+                    if i==0:
+                        A_constraints = getBarrierConstraint(agent1.agentID,Ri,Rg) #+ [(C[i], C[2], C[3])]
+                    else:
+                        A_constraints = getBarrierConstraint(agent2.agentID,Rj,Rg) #+ [(C[i], C[2], C[3])]
+                else:
+                    A_constraints = A_constraints + [(C[i], C[2], C[3])] #child node constraints = parent node constraints + constraints as per conflict
                 #print(A_solution)
 
             A = Node(A_constraints,A_solution) #initiate child node 
@@ -225,6 +246,8 @@ def HighLevelCBS(grid_pygame): #{agent number1:[start1,goal1],agent number2:[sta
             A.solution[C[i]] = LowLevelCBS(grid,agent_dict[C[i]][0],agent_dict[C[i]][1],A.constraints,C[i]) #update solution of A 
             if(A.solution != None):
                 heapq.heappush(pq,A)
+    
+    
 
     return False,None,None 
 
