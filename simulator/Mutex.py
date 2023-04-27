@@ -59,26 +59,35 @@ def GetMutexes(mdd_dict):
         # Get the nodes at the current level for each MDD
         level_nodes1 = [node for node in mdd1.nodes if mdd1.nodes.get(node, {}).get('level') == level]
         level_nodes2 = [node for node in mdd2.nodes if mdd2.nodes.get(node, {}).get('level') == level]
+
         # Iterate over pairs of nodes at the current level
         for node1 in level_nodes1:
             for node2 in level_nodes2:
                 # Check if all parents of the two nodes are mutex
-                if all(mdd1.nodes.get(parent, {}).get('mutex') == mdd2.nodes.get(node2_parent, {})
-                for parent in mdd1.predecessors(node1) for node2_parent in mdd2.predecessors(node2)):
-                    # If all parents are mutex, set the current nodes to be mutex and update their mutex pointers
-                    mdd1.nodes[node1]['is_mutex'] = True
-                    mdd1.nodes[node1]['mutex'] = node2
-                    mdd2.nodes[node2]['is_mutex'] = True
-                    mdd2.nodes[node2]['mutex'] = node1
-                    print("Got propageated mutexes at level",level,"node1=",node1,"node2=",node2)
+                parents1 = list(mdd1.predecessors(node1))
+                parents2 = list(mdd2.predecessors(node2))
+                # Check if all parents of node1 are mutex with all parents of node2
+                j = 0 
+                for parent1 in parents1:
+                    i = 0
+                    for parent2 in parents2:
+                        if(mdd1.nodes.get(parent1, {}).get('mutex')!=mdd2.nodes.get(parent2, {})):
+                            break 
+                        i += 1
+                    j += 1 
+                    if((i==len(parents2)) and (j==len(parents1))):
+                        # If all parents are mutex, set the current nodes to be mutex and update their mutex pointers
+                        mdd1.nodes[node1]['is_mutex'] = True
+                        mdd1.nodes[node1]['mutex'] = node2
+                        mdd2.nodes[node2]['is_mutex'] = True
+                        mdd2.nodes[node2]['mutex'] = node1
+                        print("Got propageated mutexes at level",level,"node1=",node1,"node2=",node2)
     
-        for node1 in level_nodes1:
-            print("level,mutex")
-            print(level,mdd1.nodes[node1]['mutex'])
+        # for node1 in level_nodes1:
+        #     print("level,mutex")
+        #     print(level,mdd1.nodes[node1]['mutex'])
     # Return the updated MDD dictionary
     return mdd_dict
-
-
 
 
 def CheckCardinalConflict(mdd_mutex_dict):
