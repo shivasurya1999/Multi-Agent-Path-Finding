@@ -41,7 +41,7 @@ def GetMDD(grid, start, goal):
     layer = 0 
     rows = len(grid)
     cols = len(grid[0])
-    while (grid[goal[0]][goal[1]] != 2):
+    while (grid[goal[0]][goal[1]] != 2): #perform BFS search until goal is reached while storing each level of search in L_mdd 
         L_next = []
         for i in range(len(L)): 
             u = L[i]  
@@ -64,7 +64,7 @@ def GetMDD(grid, start, goal):
         
         layer += 1
 
-    L_mdd[-1] = [goal]
+    L_mdd[-1] = [goal] #just retain the goal as last node in graph 
     graph_levels = L_mdd # Define the list of lists representing the graph levels
     
     for r in range(len(grid)): #undo visited nodes for future agents 
@@ -73,7 +73,7 @@ def GetMDD(grid, start, goal):
     # print("agent levels list")
     # print(graph_levels)
 
-    for i in range(len(graph_levels)-1,1,-1):
+    for i in range(len(graph_levels)-1,1,-1): #eliminate the nodes in each layer starting from last layer which don't lead to the goal 
         current_layer = graph_levels[i]
         previous_layer = graph_levels[i-1]
         graph_levels[i-1] = EliminateMDDFar(current_layer,previous_layer)
