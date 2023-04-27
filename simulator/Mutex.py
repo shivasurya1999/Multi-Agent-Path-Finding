@@ -21,6 +21,8 @@ def SIC(solution): #i/p: dict of key as agent and value as list of the path coor
 
 def isallMutex(parent1, parents2, mdd1):
     parent1_mutexes = mdd1.nodes.get(parent1, {}).get('mutex')
+    print("parent1_mutexes: ",parent1_mutexes)
+    print("parents2: ",parents2) 
 
     if((not parent1_mutexes)or(not parents2)):
         return False  
@@ -45,9 +47,9 @@ def GetMutexes(mdd_dict):
     min_level = min(max_level1,max_level2)
     nx.set_node_attributes(mdd1, False, 'is_mutex')
     nx.set_node_attributes(mdd1, [], 'mutex') 
-    nx.set_node_attributes(mdd2, False, 'is_mutex')
+    nx.set_node_attributes(mdd2, False, 'is_mutex') 
     nx.set_node_attributes(mdd2, [], 'mutex')
-    for level in range(0, min_level + 1):
+    for level in range(0, min_level + 1): 
         # Get the nodes at the current level for each MDD
         level_nodes1 = [node for node in mdd1.nodes if mdd1.nodes.get(node, {}).get('level') == level]
         level_nodes2 = [node for node in mdd2.nodes if mdd2.nodes.get(node, {}).get('level') == level]
@@ -142,13 +144,8 @@ def GetConstraints(mdd_dict):
             nodes2 = [mdd.nodes[node]['mutex'] for node in nodes1]
 
             for node1 in nodes1:
-                nodes2 = [mdd.nodes[node]['mutex'] for node in nodes1 if 'mutex' in mdd.nodes[node]]
-
-                # Check if node1 is mutex with all nodes at the same level in other MDDs
-                if all(mdd2.nodes.get(node2, {}).get('is_mutex') for mdd2 in mdd_dict.values() if mdd2 != mdd
-                    for node2 in nodes2 if 'mutex' in mdd2.nodes.get(node2, {}) and mdd2.nodes.get(node2, {}).get('level') == level):
-                        A_constraints.append((agent, node1, level))
-
+                if(isallMutex(node1,nodes2,mdd)): # Check if node1 is mutex with all nodes at the same level in other MDDs
+                    A_constraints.append((agent, node1, level))
 
         All_A_constraints.append(A_constraints)
 
@@ -196,6 +193,7 @@ def Mutex(grid_pygame): #{agent number1:[start1,goal1],agent number2:[start2,goa
     print(CheckCardinalConflict(mdd_mutex_dict))
     if(CheckCardinalConflict(mdd_mutex_dict)):
         All_A_constraints = GetConstraints(mdd_mutex_dict)
+        print("All_A_constraints",All_A_constraints)
 
     for agent in agent_dict:
         path[agent] = LowLevelCBS(grid,agent_dict[agent][0],agent_dict[agent][1],All_A_constraints[agent-1],agent)
