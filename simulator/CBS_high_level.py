@@ -182,6 +182,9 @@ def HighLevelCBS(grid_pygame): #{agent number1:[start1,goal1],agent number2:[sta
     for agent in agent_dict:
         path[agent] = LowLevelCBS(grid,agent_dict[agent][0],agent_dict[agent][1],constraints,agent)
 
+    print(grid)
+    print(agent_dict)
+
     pathFound = False
     for pathKey in path:
         if len(path[pathKey]):
@@ -206,7 +209,7 @@ def HighLevelCBS(grid_pygame): #{agent number1:[start1,goal1],agent number2:[sta
             print("No. of Nodes expanded: ",idx)
             break
 
-        for i in range(2):
+        for i in range(2): 
             A_constraints = P.constraints.copy()
             A_solution = P.solution.copy() #child node sol = parent node sol (will be updated)
             if(len(C)==5): #incase of edge conflict 

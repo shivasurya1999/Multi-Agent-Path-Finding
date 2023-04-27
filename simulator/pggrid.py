@@ -7,6 +7,7 @@ from grid_display import *
 # print(includePath)
 # sys.path.insert(1, includePath)
 from CBS_high_level import *
+from Mutex import *
 
 
 IDLE = 0
@@ -23,7 +24,7 @@ class PGGrid():
     def __init__(self, grid):
         self.grid = grid
         pygame.init()
-        WINDOW_SIZE = [700, 700]
+        WINDOW_SIZE = [500, 500]
         self.gridDisplay = GridDisplay(self.grid,WINDOW_SIZE)
         self.state = IDLE
         self._onClick = None
@@ -133,7 +134,8 @@ class PGGrid():
             self.gridDisplay.updateGrid(self.grid)
             
     def calculatePath(self):
-        self.foundPath, self.pathDict, self.pathCost = HighLevelCBS(self.grid)
+        #self.foundPath, self.pathDict, self.pathCost = HighLevelCBS(self.grid)
+        self.foundPath, self.pathDict, self.pathCost = Mutex(self.grid)
 
     def animatePath(self):
         longestPathSize = 0
