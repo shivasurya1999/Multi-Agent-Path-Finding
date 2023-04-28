@@ -19,19 +19,20 @@ def SIC(solution): #i/p: dict of key as agent and value as list of the path coor
         cost += len(solution[path])
     return cost  
 
+
 def isallMutex(parent1, parents2, mdd1):
     parent1_mutexes = mdd1.nodes.get(parent1, {}).get('mutex')
-    print("parent1_mutexes: ",parent1_mutexes)
-    print("parents2: ",parents2) 
 
     if((not parent1_mutexes)or(not parents2)):
         return False  
 
-    for parent1_mutex in parent1_mutexes:
-        if not any(parent1_mutex in parent2 for parent2 in parents2):
-            return False  # mutex not found in any of the parents2
+    set1 = set(tuple(x) for x in parent1_mutexes)
+    set2 = set(tuple(x) for x in parents2)
 
-    return True  # all mutexes found in at least one of the parents2
+    if set1 == set2:
+        return True 
+    else: return False 
+
 
 
 def GetMutexes(mdd_dict):
@@ -55,21 +56,23 @@ def GetMutexes(mdd_dict):
         level_nodes2 = [node for node in mdd2.nodes if mdd2.nodes.get(node, {}).get('level') == level]
         print("level") 
         print(level)
-        print("level_nodes1")
-        print(level_nodes1)
-        print("level_nodes2")
-        print(level_nodes2)
+        # print("level_nodes1")
+        # print(level_nodes1)
+        # print("level_nodes2")
+        # print(level_nodes2)
         for node1 in level_nodes1: 
+            mdd1.nodes[node1]['mutex'] = []
             for node2 in level_nodes2:
+                mdd2.nodes[node2]['mutex'] = []
                 if(node1==node2): 
                     mdd1.nodes[node1]['is_mutex'] = True 
                     mdd1.nodes[node1]['mutex'].append(node2)
                     mdd2.nodes[node2]['is_mutex'] = True 
                     mdd2.nodes[node2]['mutex'].append(node1)
                     print("Got initial mutexes at level",level,"node1=",node1,"node2=",node2)
-
+                    
     # Propagate the mutexes to higher levels 
-    for level in range(1, min_level + 1):
+    for level in range(2, min_level + 1):
         # Get the nodes at the current level for each MDD 
         level_nodes1 = [node for node in mdd1.nodes if mdd1.nodes.get(node, {}).get('level') == level]
         level_nodes2 = [node for node in mdd2.nodes if mdd2.nodes.get(node, {}).get('level') == level]
@@ -80,10 +83,10 @@ def GetMutexes(mdd_dict):
                 # Check if all parents of the two nodes are mutex
                 parents1 = list(mdd1.predecessors(node1))
                 parents2 = list(mdd2.predecessors(node2))
-                # print("The parents at level ",level," for node1  ",node1," are parent1: ",parents1,"and for node2",node2,"parent2 ",parents2)
+                print("The parents at level ",level," for node1  ",node1," are parents1: ",parents1,"and for node2",node2,"parents2 ",parents2)
                 # Check if all parents of node1 are mutex with all parents of node2 
                 for parent1 in parents1:
-                    if(isallMutex(parent1,parents2,mdd1)): 
+                    if((isallMutex(parent1,parents2,mdd1))and(node1 != node2)): 
                         # If all parents are mutex, set the current nodes to be mutex and update their mutex pointers
                         mdd1.nodes[node1]['is_mutex'] = True
                         mdd1.nodes[node1]['mutex'].append(node2)
@@ -129,28 +132,32 @@ def GetConstraints(mdd_dict):
     """
     All_A_constraints = []
     agents = list(mdd_dict.keys())
+    mdd1 = mdd_dict[1]
+    mdd2 = mdd_dict[2]
 
     for agent in agents:
         A_constraints = []
-        mdd = mdd_dict[agent]
+        # mdd = mdd_dict[agent]
 
         # Get the levels of the MDD
-        levels = list(set(nx.get_node_attributes(mdd, 'level').values()))
+        levels = list(set(nx.get_node_attributes(mdd1, 'level').values()))
         levels.sort(reverse=True)
 
         # Check nodes from pre-final layer to just after the start layer
         for level in levels[:-1]:
-            nodes1 = [node for node in mdd.nodes if mdd.nodes.get(node, {}).get('level') == level]
-            nodes2 = [mdd.nodes[node]['mutex'] for node in nodes1]
+            nodes1 = [node for node in mdd1.nodes if mdd1.nodes.get(node, {}).get('level') == level]
+            # nodes2 = [mdd.nodes[node]['mutex'] for node in nodes1]
+            nodes2 = [node for node in mdd2.nodes if mdd2.nodes.get(node, {}).get('level') == level]
+
+            print("In get constraints nodes1= ",nodes1," nodes2=",nodes2)
 
             for node1 in nodes1:
-                if(isallMutex(node1,nodes2,mdd)): # Check if node1 is mutex with all nodes at the same level in other MDDs
+                if(isallMutex(node1,nodes2,mdd1)): # Check if node1 is mutex with all nodes at the same level in other MDDs
                     A_constraints.append((agent, node1, level))
 
         All_A_constraints.append(A_constraints)
 
     return All_A_constraints
-
 
 
 
@@ -195,9 +202,17 @@ def Mutex(grid_pygame): #{agent number1:[start1,goal1],agent number2:[start2,goa
         All_A_constraints = GetConstraints(mdd_mutex_dict)
         print("All_A_constraints",All_A_constraints)
 
-    for agent in agent_dict:
-        path[agent] = LowLevelCBS(grid,agent_dict[agent][0],agent_dict[agent][1],All_A_constraints[agent-1],agent)
+    New_All_A_constraints = []
+    for constraint_list in All_A_constraints:
+            New_All_A_constraints.append([(x[0], list(x[1]), x[2]) for x in constraint_list])
 
+    for agent in agent_dict:
+        agent_constraints = New_All_A_constraints[agent-1]
+        print("Constraints for agent",agent,":",agent_constraints)
+        path[agent] = LowLevelCBS(grid,agent_dict[agent][0],agent_dict[agent][1],agent_constraints,agent)
+        print("Path found for agent ",agent, " using mutex with the constraints: ",path[agent])
+
+    print(path)
     print(grid)
     print(agent_dict)
 
