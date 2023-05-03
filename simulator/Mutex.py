@@ -35,7 +35,7 @@ def isallMutex(parent1, parents2, mdd1):
 
 
 
-def GetMutexes(mdd_dict):
+def GetMutexes(mdd_dict): #constructs mutexes using the mdd_dict, modifies each mdd of mdd_dict and returns the new mdds
     # Get the two MDDs from the input dictionary
     mdd1 = mdd_dict[1]
     mdd2 = mdd_dict[2] 
@@ -162,6 +162,11 @@ def GetConstraints(mdd_dict):
 
 
 def Mutex(grid_pygame): #{agent number1:[start1,goal1],agent number2:[start2,goal2]}. Returns solution with a path per agent, otherwise returns None 
+    """
+    Input: grid along with agents and obstacles
+    Output: Simulated agent paths by using mutex algorithm 
+    """
+    
     grid = grid_pygame.getMap().tolist()
     start_list = grid_pygame.getAgentMap().tolist()
     goal_list = grid_pygame.getAgentGoalMap().tolist()
